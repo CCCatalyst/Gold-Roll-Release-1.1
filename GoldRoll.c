@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
+#include <ctype.h>
 
 /*Declarations for the gamemodes and functions for GoldRoll */
 
@@ -12,39 +13,49 @@ void GameHard(int credits, int gold);
 
 void Lucky(int *PointerCredits, int *PointerGold);
 
+// A structure that holds the variables for the gold, credits, and difficulty amounts.
+typedef struct {
 
+	int difficulty;
+	int credits;
+	int gold;
+
+} Main;
 
 int main()
 {
 
 	srand(time(NULL)); 
-	int Difficulty; //Number represents difficulty, 1 is easy, 2 is normal, 3 is hard
-	int credits; //init for the credits variable
-	int gold = 0; //start off at 0 gold, gets added upon within the gamemodes
 
-	printf("Please enter in a difficulty: 1 for easy, 2 for medium, 3 for hard: ");
-	scanf_s("%d", &Difficulty); //takes user input for Difficulty int
+	//int Difficulty; //Number represents difficulty, 1 is easy, 2 is normal, 3 is hard
+	//int credits; //init for the credits variable
+	//int gold = 0; //start off at 0 gold, gets added upon within the gamemodes
 	
-	if (Difficulty == 1){
+	Main start; // Structure variable
+	start.gold = 0;
+	printf("Please enter in a difficulty: 1 for easy, 2 for medium, 3 for hard: ");
+	scanf_s("%d", &start.difficulty); //takes user input for Difficulty int
+	
+	if (start.difficulty == 1){
 		printf("You chose easy: Reach 10000 gold before you run out of credits!\n");
-		credits = 10000;
-		GameEasy(credits, gold); //GameEasy function is entered
+		start.credits = 10000;
+		GameEasy(start.credits, start.gold); //GameEasy function is entered
 	}
 
-	if (Difficulty == 2) {
+	if (start.difficulty == 2) {
 		printf("You chose normal: Reach 12000 gold before you run out of credits!\n");
-		credits = 8000;
-		GameNormal(credits, gold); //GameNormal function is entered
+		start.credits = 8000;
+		GameNormal(start.credits, start.gold); //GameNormal function is entered
 	}
 
-	if (Difficulty == 3) {
+	if (start.difficulty == 3) {
 		printf("You chose hard: Reach 14000 gold before you run out of credits!\n");
-		credits = 5000;
-		GameHard(credits, gold); //GameHard function is entered
+		start.credits = 5000;
+		GameHard(start.credits, start.gold); //GameHard function is entered
 	}
 
 	//Prints and proceeds to return 0 if the input is not 1, 2, or 3
-	if (Difficulty >= 4 || Difficulty <= 0) {
+	if (start.difficulty >= 4 || start.difficulty <= 0) {
 		printf("invalid input, exiting..."); 
 	}
 	return 0;
@@ -53,12 +64,15 @@ int main()
 
 void GameEasy(int credits, int gold) 
 {
+
 	int userinput; //init for user input
+	
+
 	int *PointerGold, *PointerCredits; //Pointers for the gold and credit values that will change throughout the game
 
 	PointerGold = &gold; 
 	PointerCredits = &credits;
-
+	
 
 	//while loop that always checks for credits to be a number above 0
 	while (credits > 0 && gold <= 10000)
@@ -66,26 +80,38 @@ void GameEasy(int credits, int gold)
 		
 		printf("How many credits will be put in?\n");
 		printf("1 for 100\n2 for 500\n3 for 1000\n"); //Switched to number selection for quicker input
-		scanf_s("%d", &userinput); // Prompts user for userinput variable
+		if (scanf_s("%d", &userinput) != 1) {
+			printf("\nUnexpected input, exiting...");
+			return EXIT_FAILURE; //Program exits if a non-integer value is entered
+		}
+			
+		//scanf_s("%d", &userinput); // Prompts user for userinput variable (OLD)
 
 		/*Error Messages*/
+			
 
 		if (userinput == 2 && *PointerCredits < 500 && *PointerCredits != 0) {
 			printf("\nYou do not have enough credits for that!\n");
+			printf("You currently have this much gold!:%d ", *PointerGold); //Displays current gold
+			printf("You currently have this much credits!:%d\n ", *PointerCredits); //Displays current credits
 		}
 
 		if (userinput == 3 && *PointerCredits < 1000 && *PointerCredits != 0) {
 			printf("\nYou do not have enough credits for that!\n"); //Shows when a user tries to input more credits than they have
+			printf("You currently have this much gold!:%d ", *PointerGold); //Displays current gold
+			printf("You currently have this much credits!:%d\n ", *PointerCredits); //Displays current credits
 		}
 
-		if (userinput > 3) {
+		if (userinput > 3 || userinput < 1) {
 			printf("Please input a valid choice\n"); //Whenever a number besides 1, 2, or 3 are provided
-
+			printf("You currently have this much gold!:%d ", *PointerGold); //Displays current gold
+			printf("You currently have this much credits!:%d\n ", *PointerCredits); //Displays current credits
+			
 		}
 
 	
 		//Takes away 100 credits and adds a random amount of gold up to 200: Safe but low payout. No chance for luck roll
-		if (userinput == 1 && *PointerCredits >= 100) 
+		if (userinput == 1 && *PointerCredits >= 100)
 		{
 			credits = credits - 100;
 			gold = gold + rand() % 200; 
@@ -155,7 +181,10 @@ void GameNormal(int credits, int gold)
 
 		printf("How many credits will be put in?\n");
 		printf("1 for 100\n2 for 500\n3 for 1000\n"); //Switched to number selection for quicker input
-		scanf_s("%d", &userinput); // Prompts user for userinput variable
+		if (scanf_s("%d", &userinput) != 1) {
+			printf("\nUnexpected input, exiting...");
+			return EXIT_FAILURE; //Program exits if a non-integer value is entered
+		}
 
 		/*Error Messages*/
 
@@ -244,7 +273,10 @@ void GameHard(int credits, int gold)
 
 		printf("How many credits will be put in?\n");
 		printf("1 for 100\n2 for 500\n3 for 1000\n"); //Switched to number selection for quicker input
-		scanf_s("%d", &userinput); // Prompts user for userinput variable
+		if (scanf_s("%d", &userinput) != 1) {
+			printf("\nUnexpected input, exiting...");
+			return EXIT_FAILURE; //Program exits if a non-integer value is entered
+		}
 
 		/*Error Messages*/
 
@@ -331,12 +363,16 @@ void Lucky(int *PointerCredits, int *PointerGold) {
 
 
 		int bonusinput;										// New input variable for the function
-		int bet = rand() % 2;								// My chance roll for double or nothing, Coin flip
-		int credbonus = 1000;								// A bonus 1000 to credits, Possible game saver
-		int goldbonus = 600;								// A bonus 600 to gold, Safe Bonus
-		int bonus[3] = { bet, goldbonus, credbonus };		// Array that holds the variables for the bonuses
+		
 
+		//A union that holds the variables for the bonus options.
+		typedef union {
+			int bet;
+			int credbonus;
+			int goldbonus;
+		} bonus;
 
+		bonus Choice;
 		/*Prompt that shows when luck is succeeded*/
 		printf("1: You are granted 1000 additional credits\n2: You are given a bonus of 600 gold\n3: You have a chance to double or halve your gold\n\n");
 		printf("BONUS: Input a number to select which bonus you would like to recieve!: ");
@@ -344,15 +380,16 @@ void Lucky(int *PointerCredits, int *PointerGold) {
 
 		if (bonusinput == 1) {
 
-			*PointerCredits = *PointerCredits + bonus[2];	// Updates the credits variable with an additional 1000 
+			Choice.credbonus = 1000;
+			*PointerCredits = *PointerCredits + Choice.credbonus;	// Updates the credits variable with an additional 1000 
 			printf("\nYou are awarded 1000 extra credits!\n");
 			printf("Your credits are now %d\n", *PointerCredits);
 
 		}
 
 		if (bonusinput == 2) {
-
-			*PointerGold = *PointerGold + bonus[1];
+			Choice.goldbonus = 600;
+			*PointerGold = *PointerGold + Choice.goldbonus;
 			printf("\nYou are awarded 600 extra gold!\n");	// Updates the gold variable with an additional 600
 			printf("Your gold is now %d\n ", *PointerGold);
 
@@ -360,7 +397,9 @@ void Lucky(int *PointerCredits, int *PointerGold) {
 
 		if (bonusinput == 3) {
 
-			if (bonus[0] == 0) {
+			Choice.bet = rand() % 2;
+
+			if (Choice.bet == 0) {
 
 				int remainder = *PointerGold % 2;
 				int penalty = *PointerGold / 2;
